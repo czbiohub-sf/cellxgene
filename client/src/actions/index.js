@@ -634,6 +634,40 @@ const requestDifferentialExpressionAll = (num_genes = 100) => async (
     });
   }
 };
+
+const requestExpressionOverlap = (gene1, gene2) => async (
+  _dispatch,
+  getState
+) => {
+  const { layoutChoice } = getState();
+  const { current } = layoutChoice;
+  let cells = annoMatrix.rowIndex.labels();  
+  cells = Array.isArray(cells) ? cells : Array.from(cells);
+
+  const res = await fetch(
+    `${API.prefix}${API.version}exprOverlap`,
+    {
+      method: "PUT",
+      headers: new Headers({
+        Accept: "application/octet-stream",
+        "Content-Type": "application/json",
+      }),
+      body: JSON.stringify({
+        embName: current,
+        gene1: gene1,
+        gene2: gene2,
+        filter: { obs: { index: cells } }
+      }),
+      credentials: "include",
+      }
+  );
+  const response = await res.json();
+  const { colorData } = response;
+  if (res.ok && res.headers.get("Content-Type").includes("application/json")) {
+    return colorData;
+  }
+}
+
 const selectAll = () => async (dispatch, getState) => {
   dispatch({ type: "select all observations" });
   try {
@@ -659,6 +693,7 @@ function fetchJson(pathAndQuery) {
 
 export default {
   reembedParamsObsmFetch,
+  requestExpressionOverlap,
   requestDifferentialExpressionAll,
   doInitialDataLoad,
   requestDataLayerChange,

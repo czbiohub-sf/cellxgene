@@ -817,6 +817,37 @@ class AnndataAdaptor(DataAdaptor):
         self._save_orig_data(action="emb",key=name)
         return layout_schema
 
+    def compute_expression_overlap(self,g1,g2,embName, obsFilter):
+        try:
+            shape = self.get_shape()
+            obs_mask = self._axis_filter_to_mask(Axis.OBS, obsFilter["obs"], shape[0])
+        except (KeyError, IndexError):
+            raise FilterError("Error parsing filter")
+       
+        obs_mask = slice(None) if obs_mask is None else obs_mask        
+        
+        nnm = self.data.obsp[f"N_{embName}"]
+        su = nnm.sum(1).A.flatten()[:,None]
+        su[su==0]=1
+        nnm = nnm.multiply(1/su).tocsr()
+        nnm = nnm[:,obs_mask]
+
+        if sp.sparse.issparse(self.data.X):
+            a1 = self.data[:,g1].X.A.flatten()[obs_mask]
+            a2 = self.data[:,g2].X.A.flatten()[obs_mask]
+        else:
+            a1 = self.data[:,g1].X[obs_mask]
+            a2 = self.data[:,g2].X[obs_mask]  
+
+            
+        davg1 = nnm.dot(a1).flatten()
+        davg2 = nnm.dot(a2).flatten()
+        davg = np.vstack([davg1,davg2]).min(0)
+        davg = davg/davg.max()
+        davg_res = np.zeros(self.data.shape[0])
+        davg_res[obs_mask] = davg
+        return davg_res
+
     def compute_diffexp_ttest(self, maskA, maskB, top_n=None, lfc_cutoff=None):
         if top_n is None:
             top_n = self.dataset_config.diffexp__top_n

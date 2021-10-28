@@ -112,7 +112,7 @@ export const GenesetHotkeys = (props) => {
           const geneset = Array.from(genesets.values())[0]?.genesetDescription;
           if (geneset) {
             dispatch({
-              type: "color by nothing"
+              type: "reset colorscale"
             });
             dispatch(actions.genesetDeleteGroup(geneset));
           }

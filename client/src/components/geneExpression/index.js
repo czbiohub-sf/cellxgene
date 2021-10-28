@@ -21,7 +21,7 @@ import { AnnoMatrixLoader } from "../../annoMatrix";
 class GeneExpression extends React.Component {
   constructor(props){
     super(props);
-    this.state={};
+    this.state={showJointExpr: false};
   }
 
   renderGeneSets = () => {
@@ -97,7 +97,13 @@ class GeneExpression extends React.Component {
       })
     }
   }
-
+  toggleJointExpression = () => {
+    const { dispatch } = this.props;
+    dispatch({type: "toggle joint expression"})
+    this.setState({
+      showJointExpr: !this.state.showJointExpr
+    })
+  }
   handleActivateCreateGenesetMode = () => {
     const { dispatch } = this.props;
     dispatch({ type: "geneset: activate add new geneset mode" });
@@ -105,6 +111,8 @@ class GeneExpression extends React.Component {
 
   render() {
     const { dispatch, genesets, annoMatrix } = this.props;
+    const { showJointExpr } = this.state;
+
     return (
       <div>
         <GenesetHotkeys
@@ -120,6 +128,7 @@ class GeneExpression extends React.Component {
             >
               Create new <strong>gene set</strong>
             </Button>
+        
             <ParameterInput
               label="Data layer"
               param="dataLayerExpr"
@@ -128,6 +137,14 @@ class GeneExpression extends React.Component {
             />                   
                               
           </div>
+          <Button
+              data-testid="joint-expression"
+              onClick={this.toggleJointExpression}
+              intent={showJointExpr ? "primary" : "none"}
+              active={showJointExpr}
+            >
+              <strong>Joint</strong> expression
+            </Button>              
           <CreateGenesetDialogue />
         </div>
         <div>

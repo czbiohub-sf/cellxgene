@@ -13,7 +13,7 @@ const MINI_HISTOGRAM_WIDTH = 110;
   const { gene } = ownProps;
 
   return {
-    isColorAccessor: state.colors.colorAccessor === gene,
+    isColorAccessor: state.colors.colorAccessor === gene || state.colors.colorAccessor2 === gene,
     isScatterplotXXaccessor: state.controls.scatterplotXXaccessor === gene,
     isScatterplotYYaccessor: state.controls.scatterplotYYaccessor === gene,
   };

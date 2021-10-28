@@ -319,6 +319,22 @@ def layout_obs_get(request, data_adaptor):
             include_exc_info=True,
         )
 
+def expr_overlap_put(request,data_adaptor):
+    args = request.get_json()
+    embName = args['embName']
+    g1 = args['gene1']
+    g2 = args['gene2']
+    filter = args['filter']
+    
+    davg = data_adaptor.compute_expression_overlap(g1,g2,embName, filter)
+    
+    try:
+        return make_response(jsonify({"colorData": davg}),HTTPStatus.OK, {"Content-Type": "application/json"})
+    except Exception as e:
+        return abort_and_log(HTTPStatus.BAD_REQUEST, str(e), include_exc_info=True)
+
+
+
 def sankey_data_put(request, data_adaptor):
     args = request.get_json()
     labels = args.get("labels", None)
